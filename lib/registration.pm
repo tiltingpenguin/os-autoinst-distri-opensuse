@@ -528,8 +528,8 @@ sub process_scc_register {
 
 sub show_development_versions {
     assert_screen('scc-beta-filter-checkbox');
-    send_key('alt-i');
-    assert_screen('scc-beta-filter-unchecked');
+    # send_key('alt-i');
+    # assert_screen('scc-beta-filter-unchecked');
 }
 
 sub fill_in_registration_data {
@@ -759,6 +759,7 @@ sub fill_in_reg_server {
         type_string get_var('SCC_EMAIL') if get_var('SCC_EMAIL');
         save_screenshot;
         send_key "alt-c";
+
         type_string $regcode if ($regcode);
     }
     else {

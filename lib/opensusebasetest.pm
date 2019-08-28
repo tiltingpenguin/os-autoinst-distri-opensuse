@@ -690,6 +690,8 @@ sub wait_boot {
             type_line_svirt "$testapi::password";
             type_line_svirt "systemctl is-active network", expect => 'active';
             type_line_svirt 'systemctl is-active sshd',    expect => 'active';
+            type_line_svirt 'cp /etc/sysconfig/network/ifcfg-eth0 /etc/sysconfig/network/ifcfg-eth1';
+            type_line_svirt 'wicked ifreload all';
 
             # make sure we can reach the SSH server in the SUT, try up to 1 min (12 * 5s)
             my $retries = 12;

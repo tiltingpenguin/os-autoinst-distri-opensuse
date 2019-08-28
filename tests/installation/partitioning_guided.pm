@@ -35,6 +35,11 @@ sub run() {
     assert_and_click 'remove-if-not-needed';
     send_key 'alt-n';
 
+    if (check_var('ARCH', 's390x')) {
+        assert_and_click 'inst-select-harddisks';
+        send_key 'alt-n';
+    }
+
     assert_and_click 'inst-partitioning-scheme';
     send_key 'alt-n';
 
