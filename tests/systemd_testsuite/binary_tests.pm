@@ -21,8 +21,19 @@ sub run {
 
     #run binary tests
     assert_script_run 'cd /var/opt/systemd-tests';
-    assert_script_run './run-tests.sh | tee /tmp/testsuite.log', 600;
-    assert_screen("systemd-testsuite-binary-tests-summary");
+    assert_script_run './run-tests.sh 2>&1 | tee /tmp/testsuite.log', 600;
+    wait_still_screen;
+    type_string "shutdown -r now\n";
+    if (check_var('ARCH', 's390x')) {
+        $self->wait_boot(bootloader_time => 180);
+    }
+    else {
+        wait_serial('Welcome to SUSE Linux', 300) || die "System did not boot in 300 seconds.";
+    }
+    wait_still_screen 10;
+    assert_screen('linux-login', 30);
+    reset_consoles;
+    select_console('root-console');
 }
 
 sub test_flags {

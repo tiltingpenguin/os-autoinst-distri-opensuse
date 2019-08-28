@@ -926,6 +926,11 @@ elsif (get_var('HPC')) {
     loadtest "hpc/$hpc_mm_scenario" if $hpc_mm_scenario ne '1';
 }
 elsif (get_var('SYSTEMD_TESTSUITE')) {
+    if (!get_var('BOOT_HDD_IMAGE')) {
+        load_boot_tests();
+        load_inst_tests();
+        load_reboot_tests();
+    }
     load_systemd_patches_tests;
 }
 elsif (get_var('VALIDATE_PCM_PATTERN')) {

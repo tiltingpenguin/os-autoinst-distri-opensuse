@@ -23,6 +23,7 @@ sub pre_run_hook {
 }
 
 sub run {
+    my ($self) = @_;
     #run test
     type_string 'systemctl start testsuite.service';
     send_key 'ret';
@@ -30,13 +31,18 @@ sub run {
     send_key 'ret';
     #this test run needs a reboot
     power_action('reboot', keepconsole => 1, textmode => 1);
-    wait_still_screen 20;
-    #login
-    send_key_until_needlematch('text-login', 'ret', 360, 5);
-    type_string "root\n";
-    assert_screen("password-prompt");
-    type_password;
-    send_key('ret');
+    if (check_var('ARCH', 's390x')) {
+        $self->wait_boot(in_grub => 1, bootloader_time => 180);
+    }
+    else {
+        wait_still_screen 20;
+        #login
+        send_key_until_needlematch('text-login', 'ret', 360, 5);
+        type_string "root\n";
+        assert_screen("password-prompt");
+        type_password;
+        send_key('ret');
+    }
     assert_screen "text-logged-in-root";
     assert_script_run 'cd /var/opt/systemd-tests';
     assert_script_run 'ls -l /shutdown-log.txt';
