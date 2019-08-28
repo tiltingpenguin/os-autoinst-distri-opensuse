@@ -19,24 +19,10 @@ use power_action_utils 'power_action';
 sub pre_run_hook {
     my ($self) = @_;
     #prepare test
-    $self->testsuiteprepare('TEST-09-ISSUE-2691');
+    $self->testsuiteprepare('TEST-09-ISSUE-2691', 'needreboot');
 }
 
 sub run {
-    #run test
-    type_string 'systemctl start testsuite.service';
-    send_key 'ret';
-    type_string 'systemctl status testsuite.service';
-    send_key 'ret';
-    #this test run needs a reboot
-    power_action('reboot', keepconsole => 1, textmode => 1);
-    wait_still_screen 20;
-    #login
-    send_key_until_needlematch('text-login', 'ret', 360, 5);
-    type_string "root\n";
-    assert_screen("password-prompt");
-    type_password;
-    send_key('ret');
     assert_screen "text-logged-in-root";
     assert_script_run 'cd /var/opt/systemd-tests';
     assert_script_run 'ls -l /shutdown-log.txt';
