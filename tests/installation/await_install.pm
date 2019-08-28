@@ -86,7 +86,7 @@ sub wait_countdown_stop {
 sub run {
     my $self = shift;
     # NET isos are slow to install
-    my $timeout = 2000;
+    my $timeout = 2600;
 
     # workaround for yast popups and
     # detect "Wrong Digest" error to end test earlier
@@ -196,7 +196,7 @@ sub run {
         # A single changing digit is only a minor change, overide default
         # similarity level considered a screen change
         my $minor_change_similarity = 55;
-        while ($counter-- and wait_countdown_stop(3, $minor_change_similarity)) {
+        while ($counter-- and wait_countdown_stop(6, $minor_change_similarity)) {
             record_info('workaround', "While trying to stop countdown we saw a screen change, retrying up to $counter times more");
         }
     }
