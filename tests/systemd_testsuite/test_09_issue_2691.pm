@@ -23,20 +23,30 @@ sub pre_run_hook {
 }
 
 sub run {
-    #run test
+    my ($self) = @_;
+    #start testsuite to evaluate testsuite stop at shutdown
     type_string 'systemctl start testsuite.service';
     send_key 'ret';
     type_string 'systemctl status testsuite.service';
     send_key 'ret';
+    #remove debug logging
+    script_run 'sed -i "/GRUB_CMDLINE_LINUX_DEFAULT.*/s/systemd.log_level=debug systemd.journald.forward_to_kmsg log_buf_len=1M printk.devkmsg=on enforcing=0//" /etc/default/grub';
+    assert_script_run 'grub2-mkconfig -o /boot/grub2/grub.cfg';
     #this test run needs a reboot
     power_action('reboot', keepconsole => 1, textmode => 1);
-    wait_still_screen 20;
-    #login
-    send_key_until_needlematch('text-login', 'ret', 360, 5);
-    type_string "root\n";
-    assert_screen("password-prompt");
-    type_password;
-    send_key('ret');
+    if (check_var('ARCH', 's390x')) {
+        $self->wait_boot(in_grub => 1, bootloader_time => 180);
+    }
+    else {
+        $self->handle_uefi_boot_disk_workaround if (check_var('ARCH', 'aarch64'));
+        wait_still_screen 20;
+        #login
+        send_key_until_needlematch('text-login', 'ret', 360, 5);
+        type_string "root\n";
+        assert_screen("password-prompt");
+        type_password;
+        send_key('ret');
+    }
     assert_screen "text-logged-in-root";
     assert_script_run 'cd /var/opt/systemd-tests';
     assert_script_run 'ls -l /shutdown-log.txt';
