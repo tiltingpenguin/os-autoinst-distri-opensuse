@@ -41,7 +41,7 @@ sub testsuiteinstall {
         }
         else {
             (my $version, my $service_pack) = split('-', get_required_var('VERSION'));
-            $qa_head_repo = "http://download.suse.de/ibs/QA:/$version$service_pack/standard/";
+            $qa_head_repo = "http://download.suse.de/ibs/QA:/$version$service_pack/update/";
         }
         die '$qa_head_repo is not set' unless ($qa_head_repo);
     }
@@ -64,26 +64,35 @@ sub testsuiteinstall {
 
 sub testsuiteprepare {
     my ($self, $testname) = @_;
-    #prepare test
-    select_console 'root-console';
-    assert_script_run 'cd /var/opt/systemd-tests';
-    assert_script_run "./run-tests.sh $testname --setup 2>&1 | tee /tmp/testsuite.log", 600;
+    #cleanup and prepare next test
+    assert_script_run "find / -maxdepth 1 -type f -print0 | xargs -0 /bin/rm -f";
+    assert_script_run 'find /etc/systemd/system/ -name "schedule.conf" -prune -o \( \! -name *~ -type f -print0 \) | xargs -0 /bin/rm -f';
+    assert_script_run "find /etc/systemd/system/ -name 'end.service' -delete";
+    assert_script_run "rm -rf /var/tmp/systemd-test*";
+    assert_script_run "clear";
+    assert_script_run "cd /var/opt/systemd-tests";
+    assert_script_run "./run-tests.sh $testname --setup 2>&1 | tee /tmp/testsuite.log", 300;
     assert_script_run 'ls -l /etc/systemd/system/testsuite.service';
-    #reboot
-    power_action('reboot', textmode => 1);
-    wait_still_screen 90;
-    assert_screen('linux-login', 300);
-    type_string "root\n";
-    wait_still_screen 3;
-    type_password;
-    wait_still_screen 3;
-    send_key 'ret';
+    wait_screen_change { type_string "shutdown -r now\n" };
+    if (check_var('ARCH', 's390x')) {
+        $self->wait_boot(bootloader_time => 180);
+    }
+    else {
+        wait_serial('Welcome to', 300) || die "System did not boot in 300 seconds.";
+    }
+
+    wait_still_screen 10;
+    assert_screen('linux-login', 30);
+    reset_consoles;
+    select_console('root-console');
 }
 
 sub post_fail_hook {
     my ($self) = @_;
     #upload logs from given testname
     $self->tar_and_upload_log('/var/opt/systemd-tests/logs', '/tmp/systemd_testsuite-logs.tar.bz2');
+    $self->save_and_upload_log('journalctl --no-pager -axb', 'journal.log');
+    upload_logs('/shutdown-log.txt', failok => 1);
 }
 
 

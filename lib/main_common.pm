@@ -2421,7 +2421,9 @@ sub load_security_tests {
 }
 
 sub load_systemd_patches_tests {
-    boot_hdd_image;
+    if (get_var('BOOT_HDD_IMAGE')) {
+        boot_hdd_image;
+    }
     loadtest 'systemd_testsuite/binary_tests';
     loadtest 'systemd_testsuite/test_01_basic';
     loadtest 'systemd_testsuite/test_02_cryptsetup';

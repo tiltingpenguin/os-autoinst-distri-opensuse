@@ -21,7 +21,7 @@ sub run {
 
     #run binary tests
     assert_script_run 'cd /var/opt/systemd-tests';
-    assert_script_run './run-tests.sh | tee /tmp/testsuite.log', 600;
+    assert_script_run './run-tests.sh 2>&1 | tee /tmp/testsuite.log', 600;
     assert_screen("systemd-testsuite-binary-tests-summary");
 }
 
