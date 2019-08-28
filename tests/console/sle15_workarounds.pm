@@ -33,7 +33,7 @@ sub run {
     # 'ctrl-alt-f2' directly
     if (check_var('BACKEND', 'qemu')) {
         send_key('ctrl-alt-f2');
-        assert_screen(["tty2-selected", 'text-login', 'text-logged-in-root', 'generic-desktop']);
+        assert_screen(["tty2-selected", 'text-login', 'text-logged-in-root', 'generic-desktop'], 300);
         if (match_has_tag 'generic-desktop') {
             record_soft_failure 'bsc#1054782';
         }

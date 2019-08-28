@@ -548,16 +548,16 @@ sub fill_in_registration_data {
         # if not means product already out of BETA phase, then do not need to assert the 'scc-beta-filter-checkbox' any more.
 
         # Assert multi tags scc-beta-filter-checkbox and scc-without-beta-filter-checkbox to ensure catch all conditions.
-        assert_screen [qw(scc-beta-filter-checkbox scc-without-beta-filter-checkbox)];
-        if (match_has_tag('scc-beta-filter-checkbox')) {
-            if (check_var('BETA', '1')) {
-                show_development_versions;
-            }
-            elsif (!check_screen($modules_needle, 0)) {
-                record_info('bsc#1094457 : SLE 15 modules are still in BETA while product enter GMC phase');
-                show_development_versions;
-            }
-        }
+        #assert_screen [qw(scc-beta-filter-checkbox scc-without-beta-filter-checkbox)];
+        #if (match_has_tag('scc-beta-filter-checkbox')) {
+        #    if (check_var('BETA', '1')) {
+        #        show_development_versions;
+        #    }
+        #    elsif (!check_screen($modules_needle, 0)) {
+        #        record_info('bsc#1094457 : SLE 15 modules are still in BETA while product enter GMC phase');
+        #        show_development_versions;
+        #    }
+        #}
 
         verify_preselected_modules($modules_needle) if get_var('CHECK_PRESELECTED_MODULES');
         # Add desktop module for SLES if desktop is gnome
@@ -699,6 +699,7 @@ sub fill_in_reg_server {
         type_string get_var('SCC_EMAIL') if get_var('SCC_EMAIL');
         save_screenshot;
         send_key "alt-c";
+
         type_string $regcode if ($regcode);
     }
     else {

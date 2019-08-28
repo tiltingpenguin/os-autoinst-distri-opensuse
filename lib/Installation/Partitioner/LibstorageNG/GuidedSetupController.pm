@@ -23,6 +23,8 @@ use Installation::Partitioner::LibstorageNG::FileSystemOptionsPage;
 use Installation::Partitioner::LibstorageNG::FileSystemOptionsLvmPage;
 use Installation::Partitioner::LibstorageNG::SelectHardDisksPage;
 
+use testapi;
+
 sub new {
     my ($class, $args) = @_;
     my $self = bless {
@@ -95,6 +97,10 @@ sub _set_partitioning {
         $self->_encrypt_with_too_simple_password();
     }
     else {
+#tblume hier
+        if (get_var('SYSTEMD_TESTSUITEDISK')) {
+            send_key('alt-n');
+        }
         $self->get_partitioning_scheme_page()->press_next();
     }
     if (defined $has_separate_home) {
