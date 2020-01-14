@@ -18,7 +18,11 @@ use testapi;
 sub pre_run_hook {
     my ($self) = @_;
     #prepare test
+<<<<<<< HEAD
     $self->testsuiteprepare('TEST-12-ISSUE-3171', 'nspawn');
+=======
+    $self->testsuiteprepare('TEST-12-ISSUE-3171', 'noqemu');
+>>>>>>> f8ef1797bdee82fabba65250003f16f51721f873
 }
 
 sub run {

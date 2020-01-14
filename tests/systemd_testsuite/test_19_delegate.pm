@@ -18,7 +18,7 @@ use testapi;
 sub pre_run_hook {
     my ($self) = @_;
     #prepare test
-    $self->testsuiteprepare('TEST-19-DELEGATE', 'rebooted');
+    $self->testsuiteprepare('TEST-19-DELEGATE', 'reboot');
 }
 
 sub run {

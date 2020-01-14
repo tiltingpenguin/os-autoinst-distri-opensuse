@@ -100,8 +100,8 @@ sub testsuiteprepare {
         return if ($testname eq 'TEST-18-FAILUREACTION' || $testname eq 'TEST-21-SYSUSERS');
 
         assert_script_run 'ls -l /etc/systemd/system/testsuite.service';
-        #virtual machines do a vm reset instead of reboot
-        unless (check_var('BACKEND', 'qemu')) {
+
+        if ($option eq 'reboot' || !check_var('BACKEND', 'qemu')) {
             wait_screen_change { type_string "shutdown -r now\n" };
             if (check_var('ARCH', 's390x')) {
                 $self->wait_boot(bootloader_time => 180);
@@ -110,14 +110,11 @@ sub testsuiteprepare {
                 $self->handle_uefi_boot_disk_workaround if (check_var('ARCH', 'aarch64'));
                 wait_serial('Welcome to', 300) || die "System did not boot in 300 seconds.";
             }
+            wait_still_screen 10;
+            assert_screen('linux-login', 30);
+            reset_consoles;
+            select_console('root-console');
         }
-    }
-
-    if ($option eq 'rebooted' || !check_var('BACKEND', 'qemu')) {
-       wait_still_screen 10;
-       assert_screen('linux-login', 30);
-       reset_consoles;
-       select_console('root-console');
     }
 
     script_run "clear";

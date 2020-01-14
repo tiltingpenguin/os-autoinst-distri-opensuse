@@ -19,7 +19,7 @@ use power_action_utils 'power_action';
 sub pre_run_hook {
     my ($self) = @_;
     #prepare test
-    $self->testsuiteprepare('TEST-09-ISSUE-2691', 'rebooted');
+    $self->testsuiteprepare('TEST-09-ISSUE-2691', 'reboot');
 }
 
 sub run {
