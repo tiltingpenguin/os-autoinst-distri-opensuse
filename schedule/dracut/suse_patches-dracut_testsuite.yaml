@@ -1,0 +1,24 @@
+name:           suse_patches-dracut_testsuite
+description:    >
+    Maintainer: slindomansilla <slindomansilla@suse.com>
+    Modified upstream testsuite to be run as system test.
+conditional_schedule:
+    dracut_testsuite_if_VERSION:
+        VERSION:
+            'Tumbleweed':
+                - dracut_testsuite/test_16_extend_timeout
+                - dracut_testsuite/test_17_udev_wants
+            '15-SP3':
+                - dracut_testsuite/test_16_extend_timeout
+                - dracut_testsuite/test_17_udev_wants
+schedule:
+    - boot/boot_to_desktop
+    - dracut_testsuite/prepare_dracut_testsuite
+    - dracut_testsuite/test_01_basic
+    - dracut_testsuite/test_02_systemd
+    - dracut_testsuite/test_03_usr_mount
+    - dracut_testsuite/test_04_full_systemd
+    - dracut_testsuite/test_10_raid
+    - dracut_testsuite/test_11_lvm
+      #- '{{dracut_testsuite_if_VERSION}}'
+    - shutdown/shutdown
