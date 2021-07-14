@@ -57,8 +57,8 @@ sub run {
     my ($self) = @_;
     $self->testpackageinstall;
     assert_script_run('cd /usr/lib/systemd/test/SAP/');
-    assert_script_run('./prepare_for_systemd.sh');
-    assert_script_run "su - abcadm -c '/usr/lib/systemd/test/SAP/systemd_test.sh'";
+    assert_script_run('./systemd_prepare.sh');
+    assert_script_run "su - abcadm -c '/usr/lib/systemd/test/SAP/systemd_run.sh'";
 }
 
 sub post_fail_hook {
