@@ -58,13 +58,15 @@ sub run {
     $self->testpackageinstall;
     assert_script_run('cd /usr/lib/systemd/test/SAP/');
     assert_script_run('./systemd_prepare.sh');
-    assert_script_run "su - abcadm -c '/usr/lib/systemd/test/SAP/systemd_run.sh'";
+    assert_script_run "su - abcadm -c '/usr/lib/systemd/test/SAP/systemd_run.sh' | tee /tmp/systemd_run.txt";
+    $self->tar_and_upload_log('/tmp/systemd_run.txt', '/tmp/systemd_run.bz2');
+    $self->save_and_upload_log('journalctl --no-pager -axb -o short-precise', 'journal.txt');
 }
 
 sub post_fail_hook {
     my ($self) = @_;
     #upload logs from given testname
-    $self->tar_and_upload_log('/usr/lib/systemd/tests/logs',       '/tmp/SAP-systemdlib-tests-logs.tar.bz2');
+    $self->tar_and_upload_log('/tmp/systemd_run.txt', '/tmp/systemd_run.bz2');
     $self->tar_and_upload_log('/var/log/journal /run/log/journal', 'binary-journal-log.tar.bz2');
     $self->save_and_upload_log('journalctl --no-pager -axb -o short-precise', 'journal.txt');
 }
