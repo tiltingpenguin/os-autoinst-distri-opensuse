@@ -85,45 +85,47 @@ sub testsuiteinstall {
         zypper_call 'in systemd-qa-testsuite';
     } else {
         zypper_call 'in systemd-testsuite';
-	assert_script_run "export NO_BUILD=1"
     }
 }
 
 sub testsuiteprepare {
-    my ($self, $testname, $option) = @_;
-    #cleanup and prepare next test
-    assert_script_run "find / -maxdepth 1 -type f -print0 | xargs -0 /bin/rm -f";
-    assert_script_run 'find /etc/systemd/system/ -name "schedule.conf" -prune -o \( \! -name *~ -type f -print0 \) | xargs -0 /bin/rm -f';
-    assert_script_run "find /etc/systemd/system/ -name 'end.service' -delete";
-    assert_script_run "rm -rf /var/tmp/systemd-test*";
-    assert_script_run "clear";
-    assert_script_run "cd /usr/lib/systemd/tests";
-    assert_script_run "./run-tests.sh $testname --setup 2>&1 | tee /tmp/testsuite.log", 300;
+    my ($self) = @_;
+    if (is_sle('<15-SP4')) {
+        my ($self, $testname, $option) = @_;
+        #cleanup and prepare next test
+        assert_script_run "find / -maxdepth 1 -type f -print0 | xargs -0 /bin/rm -f";
+        assert_script_run 'find /etc/systemd/system/ -name "schedule.conf" -prune -o \( \! -name *~ -type f -print0 \) | xargs -0 /bin/rm -f';
+        assert_script_run "find /etc/systemd/system/ -name 'end.service' -delete";
+        assert_script_run "rm -rf /var/tmp/systemd-test*";
+        assert_script_run "clear";
+        assert_script_run "cd /usr/lib/systemd/tests";
+        assert_script_run "./run-tests.sh $testname --setup 2>&1 | tee /tmp/testsuite.log", 300;
 
-    if ($option eq 'nspawn') {
-        my $testservicepath = script_output "sed -n '/testservice=/s/root/nspawn-root/p' logs/$testname-setup.log";
-        assert_script_run "ls -l \$\{testservicepath#testservice=\}";
-    }
-    else {
-        #tests and versions that don't need a reboot
-        return if ($testname eq 'TEST-18-FAILUREACTION' || $testname eq 'TEST-21-SYSUSERS' || is_sle('>15-SP2') || is_tumbleweed);
-
-        assert_script_run 'ls -l /etc/systemd/system/testsuite.service';
-        #virtual machines do a vm reset instead of reboot
-        if (!is_qemu || ($option eq 'needreboot')) {
-            wait_screen_change { enter_cmd "shutdown -r now" };
-            if (is_s390x) {
-                $self->wait_boot(bootloader_time => 180);
-            }
-            else {
-                $self->handle_uefi_boot_disk_workaround if (is_aarch64);
-                wait_serial('Welcome to', 300) || die "System did not boot in 300 seconds.";
-            }
-            wait_still_screen 10;
-            assert_screen('linux-login', 30);
-            reset_consoles;
-            select_console('root-console');
+        if ($option eq 'nspawn') {
+            my $testservicepath = script_output "sed -n '/testservice=/s/root/nspawn-root/p' logs/$testname-setup.log";
+            assert_script_run "ls -l \$\{testservicepath#testservice=\}";
         }
+        else {
+            #tests and versions that don't need a reboot
+            return if ($testname eq 'TEST-18-FAILUREACTION' || $testname eq 'TEST-21-SYSUSERS' || is_sle('>15-SP2') || is_tumbleweed);
+
+            assert_script_run 'ls -l /etc/systemd/system/testsuite.service';
+	}
+    }
+    #virtual machines do a vm reset instead of reboot
+    if (!is_qemu || is_sle('>15-SP3')) {
+        assert_script_run "shutdown -r now";
+        if (is_s390x) {
+            $self->wait_boot(bootloader_time => 180);
+        }
+        else {
+            $self->handle_uefi_boot_disk_workaround if (is_aarch64);
+            wait_serial('Welcome to', 300) || die "System did not boot in 300 seconds.";
+        }
+        wait_still_screen 10;
+        assert_screen('linux-login', 30);
+        reset_consoles;
+        select_console('root-console');
     }
 
     script_run "clear";
