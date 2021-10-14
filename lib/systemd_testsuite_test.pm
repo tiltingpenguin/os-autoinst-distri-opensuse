@@ -64,8 +64,7 @@ sub testsuiteinstall {
     zypper_call '--gpg-auto-import-keys ref';
     # use systemd from the repo of the qa package
     if (get_var('SYSTEMD_FROM_TESTREPO')) {
-        if (is_sle('>15-SP2')) { zypper_call 'rm systemd-bash-completion' }
-        zypper_call 'in --from systemd-testrepo systemd systemd-sysvinit udev libsystemd0 systemd-coredump libudev1';
+        zypper_call 'in --from systemd-testrepo systemd systemd-sysvinit udev libsystemd0 systemd-coredump libudev1 systemd-lang';
         change_grub_config('=.*', '=9', 'GRUB_TIMEOUT');
         grub_mkconfig;
         wait_screen_change { enter_cmd "shutdown -r now" };
@@ -81,7 +80,13 @@ sub testsuiteinstall {
         reset_consoles;
         select_console('root-console');
     }
-    zypper_call 'in systemd-qa-testsuite';
+
+    if (is_sle('<15-SP4')) {
+        zypper_call 'in systemd-qa-testsuite';
+    } else {
+        zypper_call 'in systemd-testsuite';
+	assert_script_run "export NO_BUILD=1"
+    }
 }
 
 sub testsuiteprepare {
