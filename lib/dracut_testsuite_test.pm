@@ -83,7 +83,15 @@ sub testsuiteinstall {
             select_console('root-console');
         }
 
-    assert_script_run "mkdir -p $logs_dir";
+        assert_screen('linux-login', 30);
+        reset_consoles;
+        select_console('root-console');
+    
+        zypper_call "in $from_repo dracut dracut-mkinitrd-deprecated dracut-qa-testsuite";
+    } else {
+        zypper_call 'in dracut-qa-testsuite';
+    }
+    zypper_call 'in nbd nfs-kernel-server open-iscsi iscsiuio dhcp-server NetworkManager tcpdump tgt';
 }
 
 sub testsuiterun {
@@ -95,6 +103,7 @@ sub testsuiterun {
         assert_script_run "cp -avr /usr/lib/dracut/test /tmp";
         assert_script_run "mount -o bind /tmp/test /usr/lib/dracut/test";
     }
+    assert_script_run "mkdir -p $logs_dir";
     assert_script_run "cd /usr/lib/dracut/test/$test_name";
   
     my $NMPREFIX; 
@@ -135,13 +144,8 @@ sub testsuiterun {
         }
 
         assert_screen('linux-login', 30);
-        enter_cmd "root";
-        wait_still_screen 3;
-        type_password;
-        wait_still_screen 3;
-        send_key 'ret';
     }
-
+    
     # Clean
     assert_script_run "cd /usr/lib/dracut/test/$test_name";
 
