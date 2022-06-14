@@ -17,7 +17,8 @@ use testapi;
 
 sub run {
     my ($self) = @_;
-    my $test = 'TEST-19-DELEGATE', 'needreboot';
+    my $test = 'TEST-19-DELEGATE';
+    my $option = 'needreboot';
 
 
     #run test

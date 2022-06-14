@@ -17,7 +17,8 @@ use testapi;
 
 sub run {
     my ($self) = @_;
-    my $test = 'TEST-15-DROPIN', 'nspawn';
+    my $test = 'TEST-15-DROPIN';
+    my $option = 'nspawn';
 
 
     #run test

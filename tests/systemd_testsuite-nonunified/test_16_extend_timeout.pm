@@ -17,7 +17,8 @@ use testapi;
 
 sub run {
     my ($self) = @_;
-    my $test = 'TEST-16-EXTEND-TIMEOUT', 'nspawn';
+    my $test = 'TEST-16-EXTEND-TIMEOUT';
+    my $option = 'nspawn';
 
 
     #run test

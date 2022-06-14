@@ -18,7 +18,8 @@ use power_action_utils 'power_action';
 
 sub run {
     my ($self) = @_;
-    my $test = 'TEST-09-ISSUE-2691', 'needreboot';
+    my $test = 'TEST-09-ISSUE-2691';
+    my $option = 'needreboot';
 
 
     #run test

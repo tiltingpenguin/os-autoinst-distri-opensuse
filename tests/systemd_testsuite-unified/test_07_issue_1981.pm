@@ -17,7 +17,8 @@ use testapi;
 
 sub run {
     my ($self) = @_;
-    my $test = 'TEST-07-ISSUE-1981', 'nspawn';
+    my $test = 'TEST-07-ISSUE-1981';
+    my $option = 'nspawn';
 
 
     #run test
