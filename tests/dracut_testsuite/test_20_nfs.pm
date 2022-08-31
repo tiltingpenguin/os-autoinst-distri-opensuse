@@ -11,6 +11,8 @@ use warnings;
 use strict;
 use testapi;
 
+my $test_name = 'TEST-20-NFS';
+
 sub run {
     my ($self) = @_;
     $self->testsuiterun('TEST-20-NFS');
