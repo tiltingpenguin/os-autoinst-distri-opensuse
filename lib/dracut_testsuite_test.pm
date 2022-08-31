@@ -41,7 +41,6 @@ sub testsuiteinstall {
     #    zypper_call "ar https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/openSUSE_Leap_15.4/?ssl_verify=no kiwi-repo";
     #    zypper_call "ar https://download.opensuse.org/repositories/devel:/languages:/python:/backports/15.4/?ssl_verify=no kiwi-overlay-repo";
 
-
     if (check_var('DISTRI', 'sle-micro')) {
         trup_shell 'zypper --gpg-auto-import-keys ref';
         trup_shell 'zypper --non-interactive in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live NetworkManager nfs-kernel-server dhcp-server tcpdump open-iscsi iscsiuio tgt pciutils';
@@ -92,6 +91,7 @@ sub testsuiteinstall {
         zypper_call 'in dracut-qa-testsuite';
     }
     zypper_call 'in nbd nfs-kernel-server open-iscsi iscsiuio dhcp-server NetworkManager tcpdump tgt';
+    zypper_call 'in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live dracut-qa-testsuite NetworkManager nbd nfs-kernel-server dhcp-server tcpdump tgt';
 }
 
 sub testsuiterun {
@@ -143,9 +143,11 @@ sub testsuiterun {
             send_key "ctrl-alt-f1";
         }
 
-        assert_screen('linux-login', 30);
     }
     
+    assert_screen('linux-login', 30);
+    select_console 'root-console';
+   
     # Clean
     assert_script_run "cd /usr/lib/dracut/test/$test_name";
 
