@@ -28,14 +28,15 @@ sub testsuiteinstall {
     my $from_repo = '';
     if ($dracut_testsuite_repo) {
         zypper_call "ar $dracut_testsuite_repo dracut-testrepo";
-	zypper_call "--gpg-auto-import-keys ref dracut-testrepo";
         $from_repo = "--from dracut-testrepo";
     }
-
+    #repos necessary for test 16 (dmsquash)
     zypper_call "ar https://updates.suse.de/download/SUSE/Backports/SLE-15-SP3_x86_64/standard/?ssl_verify=no devel-repo";
-    zypper_call "--gpg-auto-import-keys ref devel-repo";    
-    zypper_call "ar https://updates.suse.de/download/SUSE/Products/SLE-Module-Desktop-Applications/15-SP4/x86_64/product/?ssl_verify=no desktop-repo";
-    zypper_call "--gpg-auto-import-keys ref desktop-repo";
+    zypper_call "ar https://download.suse.de/install/SLP/SLE-15-SP4-Module-Development-Tools-LATEST/x86_64/DVD1/?ssl_verify=no git-repo";
+    zypper_call "ar https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/openSUSE_Leap_15.4/?ssl_verify=no kiwi-repo";
+    zypper_call "ar https://download.opensuse.org/repositories/devel:/languages:/python:/backports/15.4/?ssl_verify=no kiwi-overlay-repo";
+
+    zypper_call "--gpg-auto-import-keys ref";
 
     # use dracut from the repo of the qa package
     if (get_var('DRACUT_FROM_TESTREPO')) {
@@ -52,16 +53,15 @@ sub testsuiteinstall {
         }
 
         if (!check_var('DESKTOP', 'textmode')) {
-	   assert_screen( "displaymanager", 500);
-           send_key "ctrl-alt-f1";
+            assert_screen("displaymanager", 500);
+            send_key "ctrl-alt-f1";
         }
 
         assert_screen('linux-login', 30);
         reset_consoles;
         select_console('root-console');
     }
-    zypper_call 'in dracut-qa-testsuite';
-    zypper_call 'in nbd nfs-kernel-server open-iscsi iscsiuio dhcp-server NetworkManager tcpdump tgt';
+    zypper_call 'in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live dracut-qa-testsuite NetworkManager nbd nfs-kernel-server dhcp-server tcpdump tgt';
 }
 
 sub testsuiterun {
