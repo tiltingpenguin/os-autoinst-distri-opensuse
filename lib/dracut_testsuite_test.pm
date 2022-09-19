@@ -30,9 +30,10 @@ sub testsuiteinstall {
         zypper_call "ar $dracut_testsuite_repo dracut-testrepo";
         $from_repo = "--from dracut-testrepo";
     }
-    #repos necessary for test 16 (dmsquash)
-    zypper_call "ar https://updates.suse.de/download/SUSE/Backports/SLE-15-SP3_x86_64/standard/?ssl_verify=no devel-repo";
+    zypper_call "ar https://updates.suse.de/download/SUSE/Backports/SLE-15-SP4_x86_64/standard/?ssl_verify=no devel-repo";
     zypper_call "ar https://download.suse.de/install/SLP/SLE-15-SP4-Module-Development-Tools-LATEST/x86_64/DVD1/?ssl_verify=no git-repo";
+    zypper_call "ar https://updates.suse.de/download/SUSE/Products/SLE-Module-Desktop-Applications/15-SP4/x86_64/product/?ssl_verify=no desktop-repo";
+    #repos necessary for test 16 (dmsquash)
     zypper_call "ar https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/openSUSE_Leap_15.4/?ssl_verify=no kiwi-repo";
     zypper_call "ar https://download.opensuse.org/repositories/devel:/languages:/python:/backports/15.4/?ssl_verify=no kiwi-overlay-repo";
 
