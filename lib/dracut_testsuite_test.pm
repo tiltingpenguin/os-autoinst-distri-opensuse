@@ -16,8 +16,10 @@ use bootloader_setup qw(change_grub_config grub_mkconfig);
 use base "consoletest";
 use utils 'zypper_call';
 use power_action_utils 'power_action';
+use transactional;
+use microos 'microos_reboot';
 
-my $logs_dir = '/tmp/dracut-testsuite-logs';
+my $logs_dir = '/root/dracut-testsuite-logs';
 
 sub testsuiteinstall {
     my ($self) = @_;
@@ -30,20 +32,36 @@ sub testsuiteinstall {
         zypper_call "ar $dracut_testsuite_repo dracut-testrepo";
         $from_repo = "--from dracut-testrepo";
     }
-    zypper_call "ar https://updates.suse.de/download/SUSE/Backports/SLE-15-SP4_x86_64/standard/?ssl_verify=no devel-repo";
-    zypper_call "ar https://download.suse.de/install/SLP/SLE-15-SP4-Module-Development-Tools-LATEST/x86_64/DVD1/?ssl_verify=no git-repo";
-    zypper_call "ar https://updates.suse.de/download/SUSE/Products/SLE-Module-Desktop-Applications/15-SP4/x86_64/product/?ssl_verify=no desktop-repo";
+    zypper_call "ar http://dist.suse.de/install/SLP/SLE-15-SP4-Module-Basesystem-LATEST/x86_64/DVD1/ base-repo";
+    zypper_call "ar http://dist.suse.de/install/SLP/SLE-15-SP4-Module-Server-Applications-LATEST/x86_64/DVD1/ server-repo";
+    zypper_call "ar http://dist.suse.de/install/SLP/SLE-15-SP4-Module-Development-Tools-LATEST/x86_64/DVD1/ devel-repo";
+    zypper_call "ar http://dist.suse.de/install/SLP/SLE-15-SP4-Module-Desktop-Applications-LATEST/x86_64/DVD1/ desktop-repo";
     #repos necessary for test 16 (dmsquash) -> not yet implemented
     #    zypper_call "ar https://download.suse.de/ibs/SUSE:/SLE-15-SP1:/Update/standard/?ssl_verify=no kiwi-repo";
     #    zypper_call "ar https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/openSUSE_Leap_15.4/?ssl_verify=no kiwi-repo";
     #    zypper_call "ar https://download.opensuse.org/repositories/devel:/languages:/python:/backports/15.4/?ssl_verify=no kiwi-overlay-repo";
 
-    zypper_call "--gpg-auto-import-keys ref";
 
-    # use dracut from the repo of the qa package
-    if (get_var('DRACUT_FROM_TESTREPO')) {
-        zypper_call "in --force $from_repo dracut dracut-mkinitrd-deprecated";
-        change_grub_config('=.*', '=9', 'GRUB_TIMEOUT');
+    if (check_var('DISTRI', 'sle-micro')) {
+        trup_shell 'zypper --gpg-auto-import-keys ref';
+        trup_shell 'zypper --non-interactive in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live NetworkManager nfs-kernel-server dhcp-server tcpdump open-iscsi iscsiuio tgt pciutils';
+        # use dracut from the repo of the qa package
+        if ($from_repo) {
+            trup_shell "zypper --non-interactive in --force $from_repo dracut dracut-mkinitrd-deprecated dracut-qa-testsuite";
+	} else {
+            trup_shell 'zypper --non-interactive in dracut-qa-testsuite';
+        }
+    } else {
+        zypper_call "--gpg-auto-import-keys ref";
+        zypper_call 'in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live NetworkManager nfs-kernel-server dhcp-server tcpdump open-iscsi iscsiuio tgt';
+        # use dracut from the repo of the qa package
+        if ($from_repo) {
+            zypper_call "in --force $from_repo dracut dracut-mkinitrd-deprecated dracut-qa-testsuite";
+	} else {
+            zypper_call "in dracut-qa-testsuite";
+        }
+
+	change_grub_config('=.*', '=9', 'GRUB_TIMEOUT');
         grub_mkconfig;
         wait_screen_change { enter_cmd "shutdown -r now" };
         if (is_s390x) {
@@ -53,17 +71,19 @@ sub testsuiteinstall {
             wait_still_screen 10;
             wait_serial('Welcome to', 300) || die "System did not boot in 300 seconds.";
         }
+    }
 
-        if (!check_var('DESKTOP', 'textmode')) {
-            assert_screen("displaymanager", 500);
-            send_key "ctrl-alt-f1";
+        if (!check_var('DISTRI', 'sle-micro')) {
+            if (!check_var('DESKTOP', 'textmode')) {
+                assert_screen("displaymanager", 500);
+                send_key "ctrl-alt-f1";
+            }
+            assert_screen('linux-login', 30);
+            reset_consoles;
+            select_console('root-console');
         }
 
-        assert_screen('linux-login', 30);
-        reset_consoles;
-        select_console('root-console');
-    }
-    zypper_call 'in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live dracut-qa-testsuite NetworkManager nfs-kernel-server dhcp-server tcpdump open-iscsi iscsiuio tgt';
+    assert_script_run "mkdir -p $logs_dir";
 }
 
 sub testsuiterun {
@@ -71,7 +91,10 @@ sub testsuiterun {
     my $timeout = get_var('DRACUT_TEST_DEFAULT_TIMEOUT') || 300;
     
     select_console 'root-console';
-    assert_script_run "mkdir -p $logs_dir";
+    if (check_var('DISTRI', 'sle-micro')) {
+        assert_script_run "cp -avr /usr/lib/dracut/test /tmp";
+        assert_script_run "mount -o bind /tmp/test /usr/lib/dracut/test";
+    }
     assert_script_run "cd /usr/lib/dracut/test/$test_name";
   
     my $NMPREFIX; 
@@ -98,19 +121,26 @@ sub testsuiterun {
 
     # Check dracut generation errors
     assert_script_run "! grep -e ERROR -e FAIL $logs_dir/$test_name-setup.log";
-    power_action('reboot', textmode => 1);
-    wait_still_screen(10, 60);
-    if (!check_var('DESKTOP', 'textmode')) {
-        assert_screen( "displaymanager", 500);
-        send_key "ctrl-alt-f1";
-    }
 
-    assert_screen('linux-login', 30);
-    enter_cmd "root";
-    wait_still_screen 3;
-    type_password;
-    wait_still_screen 3;
-    send_key 'ret';
+    if (check_var('DISTRI', 'sle-micro')) {
+        microos_reboot 1;
+    }
+    else
+    {
+        power_action('reboot', textmode => 1);
+        wait_still_screen(10, 60);
+        if (!check_var('DESKTOP', 'textmode')) {
+            assert_screen( "displaymanager", 500);
+            send_key "ctrl-alt-f1";
+        }
+
+        assert_screen('linux-login', 30);
+        enter_cmd "root";
+        wait_still_screen 3;
+        type_password;
+        wait_still_screen 3;
+        send_key 'ret';
+    }
 
     # Clean
     assert_script_run "cd /usr/lib/dracut/test/$test_name";
