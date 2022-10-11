@@ -429,7 +429,8 @@ sub qesap_prepare_env {
     push(@log_files, $paths{terraform_dir} . '/' . $provider . "/terraform.tfvars");
     my $exec_rc = qesap_execute(cmd => 'configure', verbose => 1);
     qesap_upload_logs();
-    return $exec_rc;
+    die if $exec_rc != 0;
+    return;
 }
 
 =head3 qesap_ansible_cmd
