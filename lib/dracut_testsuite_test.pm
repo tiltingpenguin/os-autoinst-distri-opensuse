@@ -36,6 +36,8 @@ sub testsuiteinstall {
     zypper_call "ar http://dist.suse.de/install/SLP/SLE-15-SP4-Module-Server-Applications-LATEST/x86_64/DVD1/ server-repo";
     zypper_call "ar http://dist.suse.de/install/SLP/SLE-15-SP4-Module-Development-Tools-LATEST/x86_64/DVD1/ devel-repo";
     zypper_call "ar http://dist.suse.de/install/SLP/SLE-15-SP4-Module-Desktop-Applications-LATEST/x86_64/DVD1/ desktop-repo";
+    #for nbd
+    zypper_call "ar https://download.suse.de/ibs/SUSE:/SLE-15:/Update/standard/?ssl_verify=no nbd-repo";
     #repos necessary for test 16 (dmsquash) -> not yet implemented
     #    zypper_call "ar https://download.suse.de/ibs/SUSE:/SLE-15-SP1:/Update/standard/?ssl_verify=no kiwi-repo";
     #    zypper_call "ar https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/openSUSE_Leap_15.4/?ssl_verify=no kiwi-repo";
@@ -47,7 +49,7 @@ sub testsuiteinstall {
 
     if (check_var('DISTRI', 'sle-micro')) {
         trup_shell 'zypper --gpg-auto-import-keys ref';
-        trup_shell 'zypper --non-interactive in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live NetworkManager nfs-kernel-server dhcp-server tcpdump open-iscsi iscsiuio tgt pciutils';
+        trup_shell 'zypper --non-interactive in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live NetworkManager nfs-kernel-server dhcp-server tcpdump open-iscsi iscsiuio tgt pciutils sysvinit-tools nbd';
         # use dracut from the repo of the qa package
         if ($from_repo) {
             trup_shell "zypper --non-interactive in --force $from_repo dracut dracut-mkinitrd-deprecated dracut-qa-testsuite";
@@ -56,7 +58,7 @@ sub testsuiteinstall {
         }
     } else {
         zypper_call "--gpg-auto-import-keys ref";
-        zypper_call 'in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live NetworkManager nfs-kernel-server dhcp-server tcpdump open-iscsi iscsiuio tgt';
+        zypper_call 'in dracut-kiwi-overlay python3-kiwi git tree dracut-kiwi-live NetworkManager nfs-kernel-server dhcp-server tcpdump open-iscsi iscsiuio tgt nbd';
         # use dracut from the repo of the qa package
         if ($from_repo) {
             zypper_call "in --force $from_repo dracut dracut-mkinitrd-deprecated dracut-qa-testsuite";
