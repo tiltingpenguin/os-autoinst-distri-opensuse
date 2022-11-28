@@ -38,6 +38,11 @@ sub testsuiteinstall {
     zypper_call "ar http://dist.suse.de/install/SLP/SLE-15-SP4-Module-Desktop-Applications-LATEST/x86_64/DVD1/ desktop-repo";
     #for nbd
     zypper_call "ar https://download.suse.de/ibs/SUSE:/SLE-15:/Update/standard/?ssl_verify=no nbd-repo";
+    #openqa repos have been deleted
+    zypper_call "mr -d SLE-Micro-5.3-Pool";
+    zypper_call "mr -d SLE-Micro-5.3-Updates";
+    script_run('suseconnect -r INTERNAL-USE-ONLY-dd97-133d -e thomas.blume@suse.com');
+
     #repos necessary for test 16 (dmsquash) -> not yet implemented
     #    zypper_call "ar https://download.suse.de/ibs/SUSE:/SLE-15-SP1:/Update/standard/?ssl_verify=no kiwi-repo";
     #    zypper_call "ar https://download.opensuse.org/repositories/Virtualization:/Appliances:/Builder/openSUSE_Leap_15.4/?ssl_verify=no kiwi-repo";
