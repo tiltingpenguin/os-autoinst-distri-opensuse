@@ -20,10 +20,10 @@ sub pre_run_hook {
 sub run {
     #run test
     my $timeout = get_var('SYSTEMD_TEST_DEFAULT_TIMEOUT') || 120;
-    assert_script_run 'cd /usr/lib/systemd/tests';
-    assert_script_run './run-tests.sh TEST-32-OOMPOLICY --run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
+    assert_script_run './run-integration-tests.sh TEST-32-OOMPOLICY --run 2>&1 | tee /tmp/testsuite.log', $timeout;
     assert_script_run 'grep "PASS: ...TEST-32-OOMPOLICY" /tmp/testsuite.log';
-    script_run './run-tests.sh TEST-32-OOMPOLICY --clean';
+    script_run './run-integration-tests.sh TEST-32-OOMPOLICY --clean';
 }
 
 sub test_flags {

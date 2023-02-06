@@ -20,8 +20,8 @@ sub pre_run_hook {
 sub run {
     #run test
     my $timeout = 900;
-    assert_script_run 'cd /usr/lib/systemd/tests';
-    assert_script_run './run-tests.sh TEST-13-NSPAWN-SMOKE --run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
+    assert_script_run './run-integration-tests.sh TEST-13-NSPAWN-SMOKE --run 2>&1 | tee /tmp/testsuite.log', $timeout;
     assert_script_run 'grep "PASS: ...TEST-13-NSPAWN-SMOKE" /tmp/testsuite.log';
 }
 

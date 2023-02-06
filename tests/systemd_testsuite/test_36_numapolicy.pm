@@ -20,10 +20,10 @@ sub pre_run_hook {
 sub run {
     #run test
     my $timeout = 1200;
-    assert_script_run 'cd /usr/lib/systemd/tests';
-    assert_script_run './run-tests.sh TEST-36-NUMAPOLICY --run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
+    assert_script_run './run-integration-tests.sh TEST-36-NUMAPOLICY --run 2>&1 | tee /tmp/testsuite.log', $timeout;
     assert_script_run 'grep "PASS: ...TEST-36-NUMAPOLICY" /tmp/testsuite.log';
-    script_run './run-tests.sh TEST-36-NUMAPOLICY --clean';
+    script_run './run-integration-tests.sh TEST-36-NUMAPOLICY --clean';
 }
 
 sub test_flags {
