@@ -12,8 +12,10 @@ use serial_terminal 'select_serial_terminal';
 use utils;
 use version_utils qw(is_sle);
 use registration qw(add_suseconnect_product);
+use base 'systemd_testsuite_test';
 
 sub run {
+    my ($self) = @_;
     my $test_opts = {
         NO_BUILD => get_var('SYSTEMD_NO_BUILD', 1),
         TEST_PREFER_NSPAWN => get_var('SYSTEMD_NSPAWN', 1),
@@ -36,7 +38,6 @@ sub run {
       e2fsprogs
       hostname
       net-tools-deprecated
-      systemd-testsuite
     );
 
     select_serial_terminal();
@@ -50,37 +51,11 @@ sub run {
         zypper_call("ar $repo systemd-tests");
     }
 
-    #install testsuite and dependecies
-    zypper_call('ref');
-    zypper_call("in @pkgs");
-
-    # navigate to test case directory
-    # extract all available test cases
-    assert_script_run("cd $testdir");
-    my @schedule = ();
-    my $exclude = get_var('SYSTEMD_EXCLUDE');
-
-    if (my $include = get_var('SYSTEMD_INCLUDE')) {
-        @schedule = split(',', $include);
-    } else {
-        my @tests = split(/\n/, script_output(qq(find . -maxdepth 1 -type d -name "TEST-*")));
-        foreach my $test (@tests) {
-            # trim folder prefix
-            $test =~ s/\.\///;
-            if (defined($exclude) && $test =~ m/$exclude/) {
-                next;
-            }
-            push @schedule, $test;
-        }
-    }
-
-    # execute generic openQA's systemd runner for each test case directory found within the *systemd-tests* package
-    # test case options are passed to each scheduled module separately
-    foreach my $test (@schedule) {
-        my $args = OpenQA::Test::RunArgs->new(test => $test, dir => $testdir, make_opts => $test_opts);
-        autotest::loadtest('tests/systemd_testsuite/runner.pm', name => $test, run_args => $args);
-    }
+    #prepare test
+    $self->testsuiteinstall;
+    $self->testsuiteprepare;
 }
+
 
 sub test_flags {
     return {milestone => 1, fatal => 1};

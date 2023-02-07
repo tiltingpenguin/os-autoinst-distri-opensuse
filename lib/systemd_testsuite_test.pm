@@ -78,7 +78,7 @@ sub testsuiteinstall {
         reset_consoles;
         select_console('root-console');
     }
-    zypper_call 'in systemd-qa-testsuite';
+    zypper_call 'in systemd-testsuite';
 }
 
 sub testsuiteprepare {
@@ -88,9 +88,8 @@ sub testsuiteprepare {
     assert_script_run 'find /etc/systemd/system/ -name "schedule.conf" -prune -o \( \! -name *~ -type f -print0 \) | xargs -0 /bin/rm -f';
     assert_script_run "find /etc/systemd/system/ -name 'end.service' -delete";
     assert_script_run "rm -rf /var/tmp/systemd-test*";
-    assert_script_run "clear";
-    assert_script_run "cd /usr/lib/systemd/tests";
-    assert_script_run "./run-tests.sh $testname --setup 2>&1 | tee /tmp/testsuite.log", 300;
+    assert_script_run "cd /usr/lib/systemd/tests/integration-tests";
+    assert_script_run "./run-integration-tests.sh $testname --setup 2>&1 | tee /tmp/testsuite.log", 300;
 
     if ($option eq 'nspawn') {
         my $testservicepath = script_output "sed -n '/testservice=/s/root/nspawn-root/p' logs/$testname-setup.log";
