@@ -79,6 +79,7 @@ conditional_schedule:
                 - systemd_testsuite/test_74_aux_utils
                 - systemd_testsuite/test_75_resolved
                 - systemd_testsuite/test_76_sysctl
+                - systemd_testsuite/test_77_openfile
             '15-SP4':
                 - systemd_testsuite/test_16_extend_timeout
                 - systemd_testsuite/test_17_udev
