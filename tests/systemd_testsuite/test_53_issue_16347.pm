@@ -21,9 +21,9 @@ sub run {
     #run test
     my $timeout = get_var('SYSTEMD_TEST_DEFAULT_TIMEOUT') || 120;
     assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
-    assert_script_run './run-integration-tests.sh TEST-53-ISSUE-16347 --run 2>&1 | tee /tmp/testsuite.log', $timeout;
-    assert_script_run 'grep "PASS: ...TEST-53-ISSUE-16347" /tmp/testsuite.log';
-    script_run './run-integration-tests.sh TEST-53-ISSUE-16347 --clean';
+    assert_script_run 'export NO_BUILD=1 && make -C TEST-53-ISSUE-16347 run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'grep "TEST-53-ISSUE-16347 RUN: .* \[OK\]" /tmp/testsuite.log';
+    script_run 'export NO_BUILD=1 && make -C TEST-53-ISSUE-16347 clean';
 }
 
 sub test_flags {

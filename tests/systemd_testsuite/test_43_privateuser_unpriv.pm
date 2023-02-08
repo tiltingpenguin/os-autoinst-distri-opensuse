@@ -21,9 +21,9 @@ sub run {
     #run test
     my $timeout = 600;
     assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
-    assert_script_run './run-integration-tests.sh TEST-43-PRIVATEUSER-UNPRIV --run 2>&1 | tee /tmp/testsuite.log', $timeout;
-    assert_script_run 'grep "PASS: ...TEST-43-PRIVATEUSER-UNPRIV" /tmp/testsuite.log';
-    script_run './run-integration-tests.sh TEST-42-EXECSTOPPOST --clean';
+    assert_script_run 'export NO_BUILD=1 && make -C TEST-43-PRIVATEUSER-UNPRIV run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'grep "TEST-43-PRIVATEUSER-UNPRIV RUN: .* \[OK\]" /tmp/testsuite.log';
+    script_run 'export NO_BUILD=1 && make -C TEST-42-EXECSTOPPOST clean';
 }
 
 sub test_flags {

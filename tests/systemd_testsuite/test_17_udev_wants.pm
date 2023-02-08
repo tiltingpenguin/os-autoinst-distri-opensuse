@@ -21,8 +21,8 @@ sub run {
     #run test
     my $timeout = 600;
     assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
-    assert_script_run './run-integration-tests.sh TEST-17-UDEV-WANTS --run 2>&1 | tee /tmp/testsuite.log', $timeout;
-    assert_script_run 'grep "PASS: ...TEST-17-UDEV-WANTS" /tmp/testsuite.log';
+    assert_script_run 'export NO_BUILD=1 && make -C TEST-17-UDEV-WANTS run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'grep "TEST-17-UDEV-WANTS RUN: .* \[OK\]" /tmp/testsuite.log';
 }
 
 sub test_flags {

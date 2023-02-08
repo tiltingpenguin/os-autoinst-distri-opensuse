@@ -21,9 +21,9 @@ sub run {
     #run test
     my $timeout = 600;
     assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
-    assert_script_run './run-integration-tests.sh TEST-02-CRYPTSETUP --run 2>&1 | tee /tmp/testsuite.log', $timeout;
-    assert_script_run 'grep "PASS: ...TEST-02-CRYPTSETUP" /tmp/testsuite.log';
-    script_run './run-integration-tests.sh TEST-02-CRYPTSETUP --clean';
+    assert_script_run 'export NO_BUILD=1 && make -C TEST-02-CRYPTSETUP run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'grep "TEST-02-CRYPTSETUP RUN: .* \[OK\]" /tmp/testsuite.log';
+    script_run 'export NO_BUILD=1 && make -C TEST-02-CRYPTSETUP clean';
 }
 
 sub test_flags {

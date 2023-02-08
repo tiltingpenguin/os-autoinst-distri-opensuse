@@ -21,8 +21,8 @@ sub run {
     #run test
     my $timeout = 300;
     assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
-    assert_script_run './run-integration-tests.sh TEST-15-DROPIN --run 2>&1 | tee /tmp/testsuite.log', $timeout;
-    assert_script_run 'grep "PASS: ...TEST-15-DROPIN" /tmp/testsuite.log';
+    assert_script_run 'export NO_BUILD=1 && make -C TEST-15-DROPIN run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'grep "TEST-15-DROPIN RUN: .* \[OK\]" /tmp/testsuite.log';
 }
 
 sub test_flags {

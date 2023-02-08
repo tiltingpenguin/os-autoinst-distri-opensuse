@@ -21,9 +21,9 @@ sub run {
     #run test
     my $timeout = 300;
     assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
-    assert_script_run './run-integration-tests.sh TEST-31-DEVICE-ENUMERATION --run 2>&1 | tee /tmp/testsuite.log', $timeout;
-    assert_script_run 'grep "PASS: ...TEST-31-DEVICE-ENUMERATION" /tmp/testsuite.log';
-    script_run './run-integration-tests.sh TEST-31-DEVICE-ENUMERATION --clean';
+    assert_script_run 'export NO_BUILD=1 && make -C TEST-31-DEVICE-ENUMERATION run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'grep "TEST-31-DEVICE-ENUMERATION RUN: .* \[OK\]" /tmp/testsuite.log';
+    script_run 'export NO_BUILD=1 && make -C TEST-31-DEVICE-ENUMERATION clean';
 }
 
 sub test_flags {

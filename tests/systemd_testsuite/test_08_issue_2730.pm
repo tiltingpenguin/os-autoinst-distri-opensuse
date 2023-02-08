@@ -21,8 +21,8 @@ sub run {
     #run test
     my $timeout = 600;
     assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
-    assert_script_run './run-integration-tests.sh TEST-08-ISSUE-2730 --run 2>&1 | tee /tmp/testsuite.log', $timeout;
-    assert_script_run 'grep "PASS: ...TEST-08-ISSUE-2730" /tmp/testsuite.log';
+    assert_script_run 'export NO_BUILD=1 && make -C TEST-08-ISSUE-2730 run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'grep "TEST-08-ISSUE-2730 RUN: .* \[OK\]" /tmp/testsuite.log';
 }
 
 sub test_flags {
