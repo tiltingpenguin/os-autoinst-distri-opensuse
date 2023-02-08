@@ -9,7 +9,7 @@ conditional_schedule:
                 - systemd_testsuite/run_integration_tests
             'Tumbleweed':
                 - systemd_testsuite/test_01_basic
-                - systemd_testsuite/test_02_cryptsetup
+                - systemd_testsuite/test_02_unittests
                 - systemd_testsuite/test_03_jobs
                 - systemd_testsuite/test_04_journal
                 - systemd_testsuite/test_05_rlimits
@@ -31,7 +31,7 @@ conditional_schedule:
                 - systemd_testsuite/test_21_sysusers
                 - systemd_testsuite/test_22_tmpfiles
                 - systemd_testsuite/test_23_type_exec
-                - systemd_testsuite/test_24_unit_tests
+                - systemd_testsuite/test_24_cryptsetup
                 - systemd_testsuite/test_25_import
                 - systemd_testsuite/test_26_setenv
                 - systemd_testsuite/test_27_stdoutfile
