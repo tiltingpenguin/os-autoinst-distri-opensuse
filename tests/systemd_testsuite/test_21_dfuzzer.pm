@@ -14,19 +14,20 @@ use testapi;
 sub pre_run_hook {
     my ($self) = @_;
     #prepare test
-    $self->testsuiteprepare('TEST-17-UDEV-WANTS');
+    $self->testsuiteprepare('TEST-21-DFUZZER');
 }
 
 sub run {
     #run test
-    my $timeout = 600;
+    my $timeout = get_var('SYSTEMD_TEST_DEFAULT_TIMEOUT') || 120;
     assert_script_run 'cd /usr/lib/systemd/tests/integration-tests';
-    assert_script_run 'export NO_BUILD=1 && make -C TEST-17-UDEV-WANTS run 2>&1 | tee /tmp/testsuite.log', $timeout;
-    assert_script_run 'grep "TEST-17-UDEV-WANTS RUN: .* \[OK\]" /tmp/testsuite.log';
+    assert_script_run 'export NO_BUILD=1 && make -C TEST-21-DFUZZER run 2>&1 | tee /tmp/testsuite.log', $timeout;
+    assert_script_run 'grep "TEST-21-DFUZZER RUN: .* \[OK\]" /tmp/testsuite.log';
 }
 
 sub test_flags {
     return {always_rollback => 1};
 }
+
 
 1;

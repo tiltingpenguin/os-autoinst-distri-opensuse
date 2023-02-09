@@ -82,7 +82,9 @@ sub testsuiteinstall {
 }
 
 sub testsuiteprepare {
-    my ($self, $testname, $option) = @_;
+    my $self = shift;
+    my ($testname, $option) = @_;
+
     #cleanup and prepare next test
     assert_script_run "find / -maxdepth 1 -type f -print0 | xargs -0 /bin/rm -f";
     assert_script_run 'find /etc/systemd/system/ -name "schedule.conf" -prune -o \( \! -name *~ -type f -print0 \) | xargs -0 /bin/rm -f';

@@ -55,8 +55,6 @@ sub run {
     $self->testsuiteinstall;
     #run-integration-tests.sh does the preparation itself
     return 0 if get_var('VERSION') =~ /Tumbleweed-integrationscript/;
-
-    $self->testsuiteprepare;
 }
 
 
