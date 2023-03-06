@@ -38,6 +38,7 @@ sub run {
       e2fsprogs
       hostname
       net-tools-deprecated
+      selinux-policy-devel
     );
 
     select_serial_terminal();
