@@ -39,6 +39,8 @@ sub run {
       hostname
       net-tools-deprecated
       selinux-policy-devel
+      tpm2.0-tools
+      swtpm
     );
 
     select_serial_terminal();
