@@ -92,11 +92,20 @@ sub testsuiteprepare {
     assert_script_run "rm -rf /var/tmp/systemd-test*";
     assert_script_run "cd /usr/lib/systemd/tests/integration-tests";
     assert_script_run "export NO_BUILD=1 &&  make -C $testname clean 2>&1 | tee /tmp/testsuite.log", 300;
-    if ($testname eq 'TEST-58-REPART') {
-        assert_script_run 'sed -i \'s#\(XDG_RUNTIME_DIR=/run/user/$UID\)#\1 PATH=$PATH:/sbin#\' ../testdata/units/testsuite-58.sh';
-        assert_script_run 'sed -i \'/verity.crt/s#ln -s#ln -sf#\' ../testdata/units/testsuite-58.sh';
-        assert_script_run "sed -i \'/mksquashfs/s#sbin#usr/bin#\' $testname/test.sh";
+        if ($testname eq 'TEST-58-REPART') {
+            assert_script_run 'sed -i \'s/su \"$userid\" -p -s/su \"$userid\" -s/\' ../testdata/units/testsuite-58.sh';
+    #    assert_script_run 'sed -i \'s#\(XDG_RUNTIME_DIR=/run/user/$UID\)#\1 PATH=$PATH:/sbin#\' ../testdata/units/testsuite-58.sh';
+            assert_script_run 'sed -i \'/verity.crt/s#ln -s#ln -sf#\' ../testdata/units/testsuite-58.sh';
+            assert_script_run "sed -i \'/mksquashfs/s#sbin#usr/bin#\' $testname/test.sh";
     }
+    #increase testsuite unit start timeout on slow machines
+    if ($testname eq 'TEST-73-LOCALE') {
+        assert_script_run "sed -i \'s/ExecStartPre=/TimeoutStartSec=600\\nExecStartPre=/\' ../testdata/units/testsuite-73.service";
+}
+    if ($testname eq 'TEST-74-AUX-UTILS') {
+        assert_script_run "sed -i \'s/ExecStartPre=/TimeoutStartSec=600\\nExecStartPre=/\' ../testdata/units/testsuite-74.service";
+    }
+
     assert_script_run "export NO_BUILD=1 &&  make -C $testname setup 2>&1 | tee /tmp/testsuite.log", 300;
 
     if ($option eq 'nspawn') {
