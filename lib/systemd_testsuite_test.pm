@@ -74,9 +74,13 @@ sub testsuiteinstall {
             send_key 'ret';
             wait_serial('Welcome to', 300) || die "System did not boot in 300 seconds.";
         }
-        assert_screen('linux-login', 30);
+        if (check_var('DESKTOP', 'textmode')) {
+            assert_screen('linux-login', 30);
+        } else{
+	    $self->wait_boot_past_bootloader;
+        }
         reset_consoles;
-        select_console('root-console');
+        select_console('root-console', await_console => 120);
     }
     zypper_call 'in systemd-testsuite';
 }
